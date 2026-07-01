@@ -1,0 +1,14 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": [
+    "AGENTS.md"
+  ],
+  "plugin": ["@warp-dot-dev/opencode-warp"],
+  "mcp": {
+    "wiki-alegra": {
+      "type": "remote",
+      "url": "https://wiki.alegra.com/mcp",
+      "oauth": {}
+    }
+  }
+}
