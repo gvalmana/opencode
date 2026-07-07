@@ -31,6 +31,10 @@ import urllib.request
 import urllib.parse
 from datetime import datetime, timedelta, timezone
 
+# Add parent directory to path for google_auth module
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from google_auth import validate_google_auth, get_google_token
+
 AUTH_FILE = os.path.expanduser("~/.local/share/opencode/mcp-auth.json")
 TOKEN_URL = "https://oauth2.googleapis.com/token"
 CALENDAR_EVENTS_URL = "https://www.googleapis.com/calendar/v3/calendars/primary/events"
@@ -294,6 +298,13 @@ def main():
     time_min = day_start.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     time_max = day_end.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     tz_name = str(local_tz)
+
+    # Validate Google authentication
+    auth_ok, auth_msg = validate_google_auth(services=["google-calendar"])
+    if not auth_ok:
+        print(json.dumps({"error": f"Google authentication failed: {auth_msg}"}), file=sys.stderr)
+        print("Please run: python3 skills/google_auth.py to check authentication status", file=sys.stderr)
+        sys.exit(1)
 
     # Get OAuth token
     client_id = os.environ.get("GOOGLE_MCP_CLIENT_ID")
