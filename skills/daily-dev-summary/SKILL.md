@@ -1,11 +1,33 @@
 ---
 name: daily-dev-summary
-description: Generate daily standup summaries for Gustavo by reviewing yesterday’s GitHub, Linear, and Google activity. Use when the user asks for a daily update, what they worked on yesterday, or a summary of completed development work grouped by Linear tasks, pull requests, commits, meetings, and engineering impact.
+description: Generate daily standup summaries for Gustavo by reviewing yesterday's GitHub, Linear, and Google activity. Use when the user asks for a daily update, what they worked on yesterday, or a summary of completed development work grouped by Linear tasks, pull requests, commits, meetings, and engineering impact.
 ---
 
 # Daily Dev Summary
 
-When the user asks for their daily, generate a concise standup summary using yesterday’s activity from GitHub, Linear, and Google (Calendar + Chat).
+When the user asks for their daily, generate a concise standup summary using yesterday's activity from GitHub, Linear, and Google (Calendar + Chat).
+
+## Authentication
+
+Before running any Google scripts, verify authentication is valid:
+
+```bash
+python3 skills/google_auth.py
+```
+
+If authentication shows `NO_TOKENS` for a service, guide the user to re-authorize:
+
+1. **Calendar** (for reading events):
+   ```bash
+   python3 skills/daily-focus/reauth-calendar.py
+   ```
+   Follow the URL, authorize, and the tokens will be saved automatically.
+
+2. **Chat** (for reading messages):
+   - Chat tokens are managed by the MCP server in opencode
+   - If chat fails, ask the user to re-authorize via opencode's MCP settings
+
+If authentication fails with a refresh error, run the reauth script again to get fresh tokens.
 
 ## Sources
 
