@@ -1,14 +1,40 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "instructions": [
-    "AGENTS.md"
-  ],
+  "instructions": ["AGENTS.md"],
   "plugin": ["@warp-dot-dev/opencode-warp"],
   "mcp": {
     "wiki-alegra": {
       "type": "remote",
       "url": "https://wiki.alegra.com/mcp",
       "oauth": {}
+    },
+    "sentry": {
+      "type": "remote",
+      "url": "https://mcp.sentry.dev/mcp",
+      "enabled": true
+    },
+    "Linear": {
+      "type": "remote",
+      "url": "https://mcp.linear.app/mcp",
+      "oauth": {}
+    },
+    "google-calendar": {
+      "type": "remote",
+      "url": "https://calendarmcp.googleapis.com/mcp/v1",
+      "oauth": {
+        "clientId": "{env:GOOGLE_MCP_CLIENT_ID}",
+        "clientSecret": "{env:GOOGLE_MCP_CLIENT_SECRET}",
+        "scope": "https://www.googleapis.com/auth/calendar.calendarlist.readonly https://www.googleapis.com/auth/calendar.events.readonly https://www.googleapis.com/auth/calendar.events.freebusy"
+      }
+    },
+    "google-chat": {
+      "type": "remote",
+      "url": "https://chatmcp.googleapis.com/mcp/v1",
+      "oauth": {
+        "clientId": "{env:GOOGLE_MCP_CLIENT_ID}",
+        "clientSecret": "{env:GOOGLE_MCP_CLIENT_SECRET}",
+        "scope": "https://www.googleapis.com/auth/chat.spaces.readonly https://www.googleapis.com/auth/chat.memberships.readonly https://www.googleapis.com/auth/chat.messages.readonly https://www.googleapis.com/auth/chat.users.readstate.readonly"
+      }
     }
   }
 }
