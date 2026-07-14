@@ -18,11 +18,15 @@ import os
 import sys
 import urllib.request
 import urllib.parse
+import subprocess
 from datetime import datetime, timedelta, timezone
 
 # Add parent directory to path for google_auth module
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from google_auth import validate_google_auth, get_google_token
+
+REAUTH_CALENDAR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "daily-focus", "reauth-calendar.py")
+REAUTH_CHAT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "reauth-chat.py")
 
 AUTH_FILE = os.path.expanduser("~/.local/share/opencode/mcp-auth.json")
 TOKEN_URL = "https://oauth2.googleapis.com/token"
@@ -32,6 +36,49 @@ CHAT_MESSAGES_URL_TMPL = "https://chat.googleapis.com/v1/{space}/messages"
 USERINFO_URL = "https://www.googleapis.com/oauth2/v2/userinfo"
 
 FOCUS_PATTERNS = ["focus", "deep work", "no meetings", "do not disturb", "blocked", "heads down"]
+
+
+def ensure_google_auth():
+    """Ejecuta reauth secuencialmente para Calendar y Chat si es necesario."""
+    services_needing_auth = []
+    
+    # Detectar qué necesita auth
+    for service in ["google-calendar", "google-chat"]:
+        auth_ok, _ = validate_google_auth(services=[service])
+        if not auth_ok:
+            services_needing_auth.append(service)
+    
+    # Si ninguno necesita auth, retornar OK
+    if not services_needing_auth:
+        return {"google-calendar": True, "google-chat": True}
+    
+    print(f"Servicios sin autenticar: {', '.join(services_needing_auth)}", file=sys.stderr)
+    print("Iniciando proceso de autorización...", file=sys.stderr)
+    
+    # Ejecutar reauths en secuencia (uno tras otro) para evitar race conditions
+    if "google-calendar" in services_needing_auth:
+        print("Abriendo navegador para Calendar...", file=sys.stderr)
+        result = subprocess.run(["python3", REAUTH_CALENDAR])
+        if result.returncode == 0:
+            print("✓ Calendar autenticado", file=sys.stderr)
+        else:
+            print("✗ Calendar falló - continuando sin este servicio", file=sys.stderr)
+    
+    if "google-chat" in services_needing_auth:
+        print("Abriendo navegador para Chat...", file=sys.stderr)
+        result = subprocess.run(["python3", REAUTH_CHAT])
+        if result.returncode == 0:
+            print("✓ Chat autenticado", file=sys.stderr)
+        else:
+            print("✗ Chat falló - continuando sin este servicio", file=sys.stderr)
+    
+    # Retornar estado final
+    result = {}
+    for service in ["google-calendar", "google-chat"]:
+        auth_ok, _ = validate_google_auth(services=[service])
+        result[service] = auth_ok
+    
+    return result
 
 
 def refresh_access_token(refresh_token, client_id, client_secret):
@@ -237,12 +284,11 @@ def fetch_chat(access_token, time_min, time_max, auth_data):
 def main():
     date_arg = sys.argv[1] if len(sys.argv) > 1 else None
 
-    # Validate Google authentication
-    auth_ok, auth_msg = validate_google_auth(services=["google-calendar", "google-chat"])
-    if not auth_ok:
-        print(json.dumps({"error": f"Google authentication failed: {auth_msg}"}), file=sys.stderr)
-        print("Please run: python3 skills/google_auth.py to check authentication status", file=sys.stderr)
-        sys.exit(1)
+    # Detectar servicios disponibles (con auto-reauth)
+    auth_status = ensure_google_auth()
+    
+    calendar_available = auth_status.get("google-calendar", False)
+    chat_available = auth_status.get("google-chat", False)
 
     client_id = os.environ.get("GOOGLE_MCP_CLIENT_ID")
     client_secret = os.environ.get("GOOGLE_MCP_CLIENT_SECRET")
@@ -253,9 +299,6 @@ def main():
     with open(AUTH_FILE, "r") as f:
         auth_data = json.load(f)
 
-    cal_refresh = auth_data.get("google-calendar", {}).get("tokens", {}).get("refreshToken")
-    chat_refresh = auth_data.get("google-chat", {}).get("tokens", {}).get("refreshToken")
-
     time_min, time_max, tz_name, date_str = get_time_range(date_arg)
 
     output = {
@@ -264,23 +307,33 @@ def main():
         "chat": {"messages": [], "total": 0, "error": None},
     }
 
-    if cal_refresh:
-        try:
-            cal_token = refresh_access_token(cal_refresh, client_id, client_secret)
-            output["calendar"] = fetch_calendar(cal_token, time_min, time_max, tz_name)
-        except Exception as e:
-            output["calendar"]["error"] = f"Token refresh failed: {e}"
+    # Calendar (solo si disponible)
+    if calendar_available:
+        cal_refresh = auth_data.get("google-calendar", {}).get("tokens", {}).get("refreshToken")
+        if cal_refresh:
+            try:
+                cal_token = refresh_access_token(cal_refresh, client_id, client_secret)
+                output["calendar"] = fetch_calendar(cal_token, time_min, time_max, tz_name)
+            except Exception as e:
+                output["calendar"]["error"] = f"Token refresh failed: {e}"
+        else:
+            output["calendar"]["error"] = "No refresh token for google-calendar"
     else:
-        output["calendar"]["error"] = "No refresh token for google-calendar"
+        output["calendar"]["error"] = "Calendar no autenticado - omitido"
 
-    if chat_refresh:
-        try:
-            chat_token = refresh_access_token(chat_refresh, client_id, client_secret)
-            output["chat"] = fetch_chat(chat_token, time_min, time_max, auth_data)
-        except Exception as e:
-            output["chat"]["error"] = f"Token refresh failed: {e}"
+    # Chat (solo si disponible)
+    if chat_available:
+        chat_refresh = auth_data.get("google-chat", {}).get("tokens", {}).get("refreshToken")
+        if chat_refresh:
+            try:
+                chat_token = refresh_access_token(chat_refresh, client_id, client_secret)
+                output["chat"] = fetch_chat(chat_token, time_min, time_max, auth_data)
+            except Exception as e:
+                output["chat"]["error"] = f"Token refresh failed: {e}"
+        else:
+            output["chat"]["error"] = "No refresh token for google-chat"
     else:
-        output["chat"]["error"] = "No refresh token for google-chat"
+        output["chat"]["error"] = "Chat no autenticado - omitido"
 
     print(json.dumps(output, indent=2, ensure_ascii=False))
 
