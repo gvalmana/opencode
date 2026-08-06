@@ -22,7 +22,6 @@ Reglas obligatorias:
 - Crea el issue con estimate `1`.
 - Crea el issue con prioridad Medium (`priority: 3`).
 - Crea el issue en status `Triage`.
-- Crea el issue con SLA de 1 semana: calcula `slaBreachesAt` como la fecha/hora actual + 7 días en formato ISO-8601 y usa `slaType: "all"`.
 
 Verificación previa de duplicados:
 
@@ -97,4 +96,3 @@ Después de crear el issue, responde con:
 - Estimate usado.
 - Prioridad usada.
 - Status usado.
-- SLA usado.
