@@ -1,5 +1,7 @@
 # RULES
 
+REGLA MAS IMPORTANTE: TIENES QUE TENER MUCHO CUIDADO AL USAR LA VARIABLE $HOME EN UNA ELIMINACION SIN ESPECIFICAR EL PATH
+
 1-No intentes crear un commit de git a menos que yo lo específique
 2-When committing a Git branch, it always asks if it should search for an issue in Linear with the Git branch that has the same name and update the comments with the added changes.
 4-Siempre intenta aplicar Clean Code y principios SOLID en las soluciones propuestas
