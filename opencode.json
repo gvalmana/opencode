@@ -1,5 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "shell": "/bin/bash",
   "instructions": ["AGENTS.md"],
   "plugin": ["@warp-dot-dev/opencode-warp"],
   "mcp": {
@@ -36,5 +37,19 @@
         "scope": "https://www.googleapis.com/auth/chat.spaces.readonly https://www.googleapis.com/auth/chat.memberships.readonly https://www.googleapis.com/auth/chat.messages.readonly https://www.googleapis.com/auth/chat.users.readstate.readonly"
       }
     },
+    "navi": {
+      "type": "remote",
+      "url": "https://bedrock-agentcore.us-east-1.amazonaws.com/runtimes/arn%3Aaws%3Abedrock-agentcore%3Aus-east-1%3A664923676010%3Aruntime%2FBrain2Mcp_Brain2Mcp-kkINiIBm2p/invocations?qualifier=DEFAULT",
+      "oauth": {
+        "clientId": "628v0gm42b0ackm37s08vj641t",
+        "scope": "openid email profile",
+        "redirectUri": "http://localhost:8080/callback"
+      },
+      "enabled": true
+    },
+    "meet-wiki": {
+      "type": "http",
+      "url": "https://meet-wiki.alegra.com/api/mcp"
+    }
   }
 }
