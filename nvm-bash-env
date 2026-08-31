@@ -1,0 +1,14 @@
+# Entorno NVM para procesos Bash no interactivos iniciados por OpenCode.
+
+if [ -z "${NVM_DIR:-}" ]; then
+  if [ -n "${XDG_CONFIG_HOME:-}" ]; then
+    export NVM_DIR="$XDG_CONFIG_HOME/nvm"
+  else
+    export NVM_DIR="$HOME/.nvm"
+  fi
+fi
+
+# Carga la función nvm sin cambiar la versión heredada del proceso padre.
+if [ -s "$NVM_DIR/nvm.sh" ]; then
+  . "$NVM_DIR/nvm.sh" --no-use
+fi
