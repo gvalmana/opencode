@@ -49,7 +49,8 @@
     },
     "meet-wiki": {
       "type": "http",
-      "url": "https://meet-wiki.alegra.com/api/mcp"
+      "url": "https://meet-wiki.alegra.com/api/mcp",
+      "enabled": true
     }
   }
 }
