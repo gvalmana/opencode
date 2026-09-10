@@ -48,9 +48,10 @@
       "enabled": true
     },
     "meet-wiki": {
-      "type": "http",
+      "type": "remote",
       "url": "https://meet-wiki.alegra.com/api/mcp",
-      "enabled": true
+      "enabled": true,
+      "oauth": {}
     }
   }
 }
