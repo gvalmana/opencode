@@ -19,23 +19,18 @@
       "url": "https://mcp.linear.app/mcp",
       "oauth": {}
     },
-    "google-calendar": {
+    "google-workspace": {
       "type": "remote",
-      "url": "https://calendarmcp.googleapis.com/mcp/v1",
-      "oauth": {
-        "clientId": "{env:GOOGLE_MCP_CLIENT_ID}",
-        "clientSecret": "{env:GOOGLE_MCP_CLIENT_SECRET}",
-        "scope": "https://www.googleapis.com/auth/calendar.calendarlist.readonly https://www.googleapis.com/auth/calendar.events.readonly https://www.googleapis.com/auth/calendar.events.freebusy"
+      "url": "https://google-mcp-97053522934.us-central1.run.app/mcp",
+      "enabled": true,
+      "headers": {
+        "Authorization": "Bearer {env:GOOGLE_WSPCE_TOKEN}"
       }
     },
     "google-chat": {
       "type": "remote",
-      "url": "https://chatmcp.googleapis.com/mcp/v1",
-      "oauth": {
-        "clientId": "{env:GOOGLE_MCP_CLIENT_ID}",
-        "clientSecret": "{env:GOOGLE_MCP_CLIENT_SECRET}",
-        "scope": "https://www.googleapis.com/auth/chat.spaces.readonly https://www.googleapis.com/auth/chat.memberships.readonly https://www.googleapis.com/auth/chat.messages.readonly https://www.googleapis.com/auth/chat.users.readstate.readonly"
-      }
+      "url": "https://workspace-mcp-922441628887.us-central1.run.app/mcp",
+      "enabled": true
     },
     "navi": {
       "type": "remote",
