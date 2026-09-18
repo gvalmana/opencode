@@ -1,63 +1,35 @@
 ---
 name: daily-focus
-description: Generate a prioritized daily focus plan for Gustavo by reviewing Linear tasks, GitHub PRs, Google Calendar, and Chat mentions. Use when the user asks for "foco del día", "prioridades de hoy", "en qué enfocarme", or similar.
+description: Generate a prioritized daily focus plan for Gustavo using Linear, GitHub, Google Calendar, and Google Chat MCP tools. Use when the user asks for "foco del día", "prioridades de hoy", "en qué enfocarme", or similar.
 ---
 
 # Daily Focus
 
-When the user asks for their daily focus, generate a prioritized action plan using today's activity from Linear, GitHub, and Google (Calendar + Chat).
+When the user asks for their daily focus, generate a prioritized action plan using today's activity from Linear, GitHub, Google Calendar, and Google Chat.
 
-## Authentication
-
-Before running any Google scripts, verify authentication is valid:
-
-```bash
-python3 skills/google_auth.py
-```
-
-If authentication shows `NO_TOKENS` for a service, guide the user to re-authorize:
-
-1. **Calendar** (for reading events + creating schedule):
-   ```bash
-   python3 skills/daily-focus/reauth-calendar.py
-   ```
-   Follow the URL, authorize, and the tokens will be saved automatically.
-
-2. **Chat** (for reading mentions):
-   - Chat tokens are managed by the MCP server in opencode
-   - If chat fails, ask the user to re-authorize via opencode's MCP settings
-
-If authentication fails with a refresh error, run the reauth script again to get fresh tokens.
+Use the configured MCP tools directly. Do not use non-MCP Google integrations, read local Google tokens, or ask the user to fix authentication outside the MCP connection. If an MCP call fails, continue with the remaining sources according to the fallback rules below.
 
 ## Sources
 
 Use:
 - **Linear activity** from the requested day: assigned issues in progress, todo, or blocked. Consult via the Linear MCP tools.
 - **GitHub activity** from today: open PRs, review requests, CI failures, merge conflicts, fetched via `gh` CLI below.
-- **Google Calendar** from today: meetings and available time, fetched via the script below.
-- **Google Chat** from today: messages where Gustavo is mentioned and active threads, fetched via the script below.
+- **Google Calendar** from today: meetings and available time, fetched with `google-workspace_calendar_events` using an exact range in the calendar timezone.
+- **Google Chat** from today: messages where Gustavo is mentioned and active threads, fetched with `google-chat_search_messages`; use `google-chat_list_spaces` and `google-chat_get_messages` for space-specific lookups or pagination.
 
 Prioritize Linear as the source of product/task context. Use GitHub to enrich the technical details. Use Calendar for meetings and Chat for communication context/decisions.
 
-### Google data script
+### Google MCP workflow
 
-At the start of every daily focus, run the script to fetch Google activity:
-
-```
-python3 skills/daily-focus/fetch-focus-data.py [--date=YYYY-MM-DD]
-```
-
-Where `--date` is optional (defaults to today). The script outputs JSON to stdout with:
-- `calendar.events[]`: meetings with duration, type, attendees
-- `calendar.total_busy_minutes`: total meeting time
-- `chat.mentions[]`: messages where Gustavo is mentioned
-- `chat.active_threads[]`: threads where Gustavo is participating
-
-If the script fails, continue with Linear+GitHub silently (fallback behavior).
+1. Resolve today's date and its start/end in the calendar timezone.
+2. Call `google-workspace_calendar_events` for that exact range.
+3. Call `google-chat_search_messages` for that exact time range and inspect mentions, authors, spaces, and threads.
+4. Use `google-workspace_whoami` when the authenticated identity is needed to identify Gustavo.
+5. If Calendar or Chat is unavailable, continue with Linear and GitHub silently.
 
 ### GitHub activity (via gh CLI)
 
-After running the Google script, use `gh` CLI to fetch GitHub activity:
+After collecting Google data, use `gh` CLI to fetch GitHub activity:
 
 ```bash
 # PRs where I'm author, open
@@ -77,7 +49,7 @@ If GitHub access is unavailable, continue with Linear only (fallback behavior).
 
 ### Linear activity
 
-After running the scripts, use the Linear MCP to get:
+After collecting source data, use the Linear MCP to get:
 
 1. **Issues in progress**: `Linear_list_issues(assignee="me", state="In Progress")`
 2. **Issues to do**: `Linear_list_issues(assignee="me", state="Todo")`
@@ -173,30 +145,18 @@ Always return exactly this format:
 
 ## Publishing to Google Chat (optional)
 
-If the user explicitly asks to publish the focus to a Google Chat space or DM:
+If the user explicitly asks to publish the focus, use `google-chat_send_message` directly.
 
-```bash
-python3 skills/daily-dev-summary/post-to-chat.py --space="<space_name>" --text="<focus_text>"
-```
-
-Or for a direct message:
-```bash
-python3 skills/daily-dev-summary/post-to-chat.py --dm="<email>" --text="<focus_text>"
-```
-
-Or without specifying a space (uses `DAILY_CHAT_SPACE` env var):
-```bash
-python3 skills/daily-dev-summary/post-to-chat.py --text="<focus_text>"
-```
+- For a named space, call `google-chat_list_spaces`, resolve the exact space ID, and send the text.
+- For a direct message, call `google-chat_resolve_dm_space` with the recipient email, then send the text to the returned space.
 
 Rules:
 - Only publish when the user explicitly asks ("publícame el foco en X", "envía las prioridades a Y", "postea el focus").
 - Never publish automatically or as part of every daily focus generation.
 - Confirm the space name with the user if ambiguous (multiple spaces with similar names).
-- If the user doesn't specify a space, use the `DAILY_CHAT_SPACE` env var if set, else ask which space.
-- Report success (with messageId) or failure to the user after publishing.
+- If the user doesn't specify a space, ask which space or recipient to use.
+- Report success or failure to the user after publishing.
 - The message is sent as plain text attributed to Gustavo (user authentication, not a bot).
-- Escape quotes in the text when passing via `--text` argument.
 
 ## Horario distribuido (bajo demanda)
 
@@ -204,24 +164,10 @@ When the user explicitly asks to schedule tasks into the calendar ("agéndame la
 
 1. Get issues from Linear with estimates (use `estimate` field from Linear MCP).
 2. For issues without estimate, ask the user: `"¿Cuánto tiempo estimas para [issue title]?"` with options: `0.5h, 1h, 1.5h, 2h, 3h, 4h`.
-3. Prepare the JSON input for the schedule script:
-
-```json
-{
-  "tasks": [
-    {"id": "ACLEDGE-1961", "title": "Implementar X", "estimate_hours": 4, "priority": "high"},
-    {"id": "ACLEDGE-1963", "title": "Configurar Y", "estimate_hours": 2.5, "priority": "medium"}
-  ]
-}
-```
-
-4. Run the schedule script:
-
-```bash
-echo '<json_input>' | python3 skills/daily-focus/schedule-focus.py [--date=YYYY-MM-DD]
-```
-
-5. Display the schedule in this format:
+3. Calculate the blocks respecting the scheduling rules below.
+4. Ask for confirmation before creating events.
+5. After confirmation, create each block directly with `google-workspace_calendar_create`. Use the issue ID and title as the event summary, and include the issue context in the description.
+6. Display the schedule in this format:
 
 ```md
 ## Horario distribuido para {fecha}:
@@ -241,4 +187,4 @@ echo '<json_input>' | python3 skills/daily-focus/schedule-focus.py [--date=YYYY-
 - Tasks with estimate > 2h are split into multiple blocks.
 - Blocks are interleaved by priority to avoid burning time on one task.
 - Events are created with title format: `{issue_id} {title}` (or `↳ {issue_id} {title}` for continuations).
-- If the user confirms, events are created in Google Calendar automatically.
+- Create events only after the user confirms.
