@@ -2,7 +2,6 @@
   "$schema": "https://opencode.ai/config.json",
   "shell": "/bin/bash",
   "instructions": ["AGENTS.md"],
-  "plugin": ["@warp-dot-dev/opencode-warp"],
   "mcp": {
     "wiki-alegra": {
       "type": "remote",
@@ -14,7 +13,7 @@
       "url": "https://mcp.sentry.dev/mcp",
       "enabled": true
     },
-    "Linear": {
+    "linear": {
       "type": "remote",
       "url": "https://mcp.linear.app/mcp",
       "oauth": {}
@@ -45,7 +44,7 @@
     "meet-wiki": {
       "type": "remote",
       "url": "https://meet-wiki.alegra.com/api/mcp",
-      "enabled": true,
+      "enabled": false,
       "oauth": {}
     }
   }
