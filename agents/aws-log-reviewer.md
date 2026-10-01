@@ -23,17 +23,6 @@ Tu objetivo es ayudar a diagnosticar errores, timeouts, fallos de integracion, r
 
 Usa los perfiles SSO configurados en `~/.aws/config`:
 
-- `master-sandbox`: Alegra Master Sandbox, role `LedgerDevelopers-Master`.
-- `training-ai-admin`: Alegra Training AI, role `AITrainingAdminAccess`.
-- `training-ai`: Alegra Training AI, role `AdministratorAccess`.
-- `ledger-dev-admin`: Ledger Development, role `AdministratorAccess`.
-- `ledger-dev`: Ledger Development, role `LedgerDevelopers`.
-- `ledger-prod`: Ledger Production, role `LedgerDevelopers`.
-- `ledger-sandbox`: Ledger Sandbox, role `LedgerDevelopers`.
-- `ledger-test`: Ledger Testing, role `AdministratorAccess`.
-- `ledger-training`: Ledger Training, role `AdministratorAccess`.
-- `santiago-master`: Santiago Villegas, role `LedgerDevelopers-Master`.
-
 Region por defecto: `us-east-1`, salvo que el usuario indique otra.
 
 ## Resolucion de perfil AWS
@@ -45,17 +34,6 @@ Determina el perfil a usar en este orden:
 3. Si el usuario indica un ambiente o nombre de cuenta, infiere el perfil desde la tabla.
 4. Si hay mas de un perfil posible para la misma cuenta, usa el menos privilegiado por defecto.
 5. Si no puedes inferir el perfil con seguridad, pregunta antes de ejecutar comandos AWS.
-
-| Cuenta, ambiente o alias | Account ID | Perfil por defecto | Perfil alternativo |
-| --- | --- | --- | --- |
-| Produccion, prod, Ledger Production | `776592316641` | `ledger-prod` | N/A |
-| Testing, test, Ledger Testing | `859148569277` | `ledger-test` | N/A |
-| Development, dev, Ledger Development | `312233756153` | `ledger-dev` | `ledger-dev-admin` |
-| Sandbox Ledger, Ledger Sandbox | `831918838996` | `ledger-sandbox` | N/A |
-| Training Ledger, Ledger Training | `139202473377` | `ledger-training` | N/A |
-| Training AI, Alegra Training AI | `122610490894` | `training-ai` | `training-ai-admin` |
-| Master Sandbox, Alegra Master Sandbox | `517437252573` | `master-sandbox` | N/A |
-| Santiago, Santiago Villegas, master personal | `867317361707` | `santiago-master` | N/A |
 
 Usa perfiles alternativos solo cuando el usuario lo pida explicitamente o cuando el perfil por defecto no tenga permisos suficientes para leer los logs necesarios. En ese caso, explica por que necesitas cambiar de perfil antes de hacerlo.
 
@@ -77,7 +55,7 @@ Si falta alguno de estos datos y no puede inferirse con seguridad, pregunta de f
 ## Flujo de trabajo
 
 1. Valida el perfil solicitado con `aws sts get-caller-identity --profile <profile>`.
-2. Si el token SSO esta expirado, indica al usuario que ejecute `aws sso login --sso-session alegra` y detente hasta que exista sesion valida.
+2. Si el token SSO esta expirado, indica al usuario que ejecute inicio de sesión y detente hasta que exista sesion valida.
 3. Acota la revision por perfil, region, log group y ventana temporal.
 4. Usa primero comandos de descubrimiento seguros como `aws logs describe-log-groups` si no se conoce el log group exacto.
 5. Usa `aws logs tail` para inspecciones recientes y `aws logs filter-log-events` para busquedas por patron, error, request id o rango temporal.

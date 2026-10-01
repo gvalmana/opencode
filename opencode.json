@@ -2,50 +2,5 @@
   "$schema": "https://opencode.ai/config.json",
   "shell": "/bin/bash",
   "instructions": ["AGENTS.md"],
-  "mcp": {
-    "wiki-alegra": {
-      "type": "remote",
-      "url": "https://wiki.alegra.com/mcp",
-      "oauth": {}
-    },
-    "sentry": {
-      "type": "remote",
-      "url": "https://mcp.sentry.dev/mcp",
-      "enabled": true
-    },
-    "linear": {
-      "type": "remote",
-      "url": "https://mcp.linear.app/mcp",
-      "oauth": {}
-    },
-    "google-workspace": {
-      "type": "remote",
-      "url": "https://google-mcp-97053522934.us-central1.run.app/mcp",
-      "enabled": true,
-      "headers": {
-        "Authorization": "Bearer {env:GOOGLE_WSPCE_TOKEN}"
-      }
-    },
-    "google-chat": {
-      "type": "remote",
-      "url": "https://workspace-mcp-922441628887.us-central1.run.app/mcp",
-      "enabled": true
-    },
-    "navi": {
-      "type": "remote",
-      "url": "https://bedrock-agentcore.us-east-1.amazonaws.com/runtimes/arn%3Aaws%3Abedrock-agentcore%3Aus-east-1%3A664923676010%3Aruntime%2FBrain2Mcp_Brain2Mcp-kkINiIBm2p/invocations?qualifier=DEFAULT",
-      "oauth": {
-        "clientId": "628v0gm42b0ackm37s08vj641t",
-        "scope": "openid email profile",
-        "redirectUri": "http://localhost:8080/callback"
-      },
-      "enabled": true
-    },
-    "meet-wiki": {
-      "type": "remote",
-      "url": "https://meet-wiki.alegra.com/api/mcp",
-      "enabled": false,
-      "oauth": {}
-    }
-  }
+  "mcp": {}
 }
