@@ -7,3 +7,7 @@ __pycache__/
 *.pyc
 
 service.json
+swarm-*
+.swarm*
+skills/graphify/*
+skills/swarm-pack/SKILL.md
