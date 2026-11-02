@@ -11,3 +11,4 @@ swarm-*
 .swarm*
 skills/graphify/*
 skills/swarm-pack/SKILL.md
+swarm-*.md
