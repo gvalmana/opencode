@@ -1,25 +1,34 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "shell": "/bin/bash",
-  "instructions": [
-    "AGENTS.md"
-  ],
+  "instructions": ["AGENTS.md"],
   "mcp": {
-    "postgres": {
-      "type": "stdio",
-      "command": "npx",
-      "args": [
-        "-y",
-        "mcp-postgres-server"
-      ],
-      "env": {
-        "PG_HOST": "your_host",
-        "PG_PORT": "5432",
-        "PG_USER": "your_user",
-        "PG_PASSWORD": "your_password",
-        "PG_DATABASE": "your_database",
-        "PG_ALLOW_WRITE": "false"
-      }
+    "servers": {
+      "postgres": {
+        "type": "local",
+        "command": ["npx", "-y", "mcp-postgres-server"],
+        "environment": {
+          "PG_HOST": "localhost",
+          "PG_PORT": "5433",
+          "PG_USER": "teams",
+          "PG_PASSWORD": "{file:~/.secrets/postgres-password}",
+          "PG_DATABASE": "teams_test",
+          "PG_ALLOW_WRITE": "false",
+          "PG_SSLMODE": "require"
+        }
+      },
+      "sentry": { "type": "remote", "url": "https://mcp.sentry.dev/mcp" },
+      "clickup": { "type": "remote", "url": "https://mcp.clickup.com/mcp" },
+      "cdk-tools-kit": { "type": "remote", "url": "http://localhost:3000" },
+      "hot-travel-mcp":{
+        "type":"remote",
+        "url": "https://api-staging.thingstodos.com/mcp-beta",
+        "oauth": false,
+        "headers": {
+          "Authorization": "Bearer {file:~/.secrets/thingstodos-mcp-token}"
+        }
+      },
+      "graphify": { "type": "local", "command": ["graphify-mcp"] }
     }
   }
 }
