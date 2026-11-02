@@ -1,15 +1,25 @@
-# ACCESSIBILITY DOCUMENTATION AGENT
-
+---
 description: Create and maintain project-specific accessibility documentation and guidance
 mode: subagent
-permission:
-    write: allow
-    edit: allow
-    bash:
-        "*": ask
-        "git status ": allow
-        "git diff": allow
-        "git log": allow
+permissions:
+  - action: edit
+    resource: "*"
+    effect: allow
+  - action: shell
+    resource: "*"
+    effect: ask
+  - action: shell
+    resource: "git status "
+    effect: allow
+  - action: shell
+    resource: "git diff"
+    effect: allow
+  - action: shell
+    resource: "git log"
+    effect: allow
+---
+
+# ACCESSIBILITY DOCUMENTATION AGENT
 
 Before working, read `~/.config/opencode/agents/shared-review-standards.md`. Accept a file, multiple files, a folder/directory, or a whole project as the documentation scope. Inspect project instructions, UI technologies, design-system conventions, and existing accessibility documentation before writing. Report documented scope and known gaps.
 

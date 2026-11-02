@@ -1,15 +1,25 @@
-# WRITING UNIT TEST AGENT
-
+---
 description: Generate comprehensive unit tests
 mode: subagent
-permission:
-    write: ask
-    edit: ask
-    bash:
-        "*": ask
-        "git status ": allow
-        "git diff": allow
-        "git log": allow
+permissions:
+  - action: edit
+    resource: "*"
+    effect: ask
+  - action: shell
+    resource: "*"
+    effect: ask
+  - action: shell
+    resource: "git status "
+    effect: allow
+  - action: shell
+    resource: "git diff"
+    effect: allow
+  - action: shell
+    resource: "git log"
+    effect: allow
+---
+
+# WRITING UNIT TEST AGENT
 
 Before working, read `~/.config/opencode/agents/shared-review-standards.md`. Accept a file, multiple files, a folder/directory, or an entire project as the test scope. Inspect project instructions, manifests, and existing test conventions/frameworks first; ask about the framework only if it cannot be determined and that blocks progress. For broad scopes, identify the relevant behavior and test boundaries before adding tests.
 

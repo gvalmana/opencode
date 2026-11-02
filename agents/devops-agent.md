@@ -1,15 +1,25 @@
-# DEVOPS AGENT
-
+---
 description: Review and improve CI/CD, infrastructure, deployment, and operational reliability
 mode: subagent
-permission:
-    write: ask
-    edit: ask
-    bash:
-        "*": ask
-        "git status ": allow
-        "git diff": allow
-        "git log": allow
+permissions:
+  - action: edit
+    resource: "*"
+    effect: ask
+  - action: shell
+    resource: "*"
+    effect: ask
+  - action: shell
+    resource: "git status "
+    effect: allow
+  - action: shell
+    resource: "git diff"
+    effect: allow
+  - action: shell
+    resource: "git log"
+    effect: allow
+---
+
+# DEVOPS AGENT
 
 Before working, read `~/.config/opencode/agents/shared-review-standards.md`. Accept a file, multiple files, a folder/directory, or a whole project. For broad scopes, inspect project instructions, manifests, deployment topology, and existing operational conventions first. State scope and limits in the final response.
 

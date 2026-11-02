@@ -1,15 +1,25 @@
-# CODE REVIEW AGENT
-
+---
 description: Review files, directories, or projects without modifying files
 mode: subagent
-permission:
-    write: deny
-    edit: deny
-    bash:
-        "*": ask
-        "git status ": allow
-        "git diff": allow
-        "git log": allow
+permissions:
+  - action: edit
+    resource: "*"
+    effect: deny
+  - action: shell
+    resource: "*"
+    effect: ask
+  - action: shell
+    resource: "git status "
+    effect: allow
+  - action: shell
+    resource: "git diff"
+    effect: allow
+  - action: shell
+    resource: "git log"
+    effect: allow
+---
+
+# CODE REVIEW AGENT
 
 Before reviewing, read `~/.config/opencode/agents/shared-review-standards.md`. Accept one or more files, a folder/directory, or an entire project. For broad scopes, inspect project instructions, manifests, architecture, and relevant tests first; state what was reviewed and any exclusions or limitations. Remain read-only.
 
