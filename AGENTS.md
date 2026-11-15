@@ -14,3 +14,30 @@ REGLA MAS IMPORTANTE: TIENES QUE TENER MUCHO CUIDADO AL USAR LA VARIABLE $HOME E
 - Usa una implementación en memoria cuando el comportamiento dependa de estado (por ejemplo, un repositorio), o una implementación registradora (`recording`/`spy`) cuando baste con capturar llamadas, parámetros y resultados. Elige según el contrato; no es necesario implementar ambas.
 - El doble debe ser determinista, no acceder a servicios reales y permitir verificar el comportamiento relevante. Ubícalo según la estructura de pruebas existente y reutiliza o extiende un doble equivalente si ya existe.
 - No agregues logging a producción solo para facilitar las pruebas. Si el proyecto no tiene una convención o estructura de pruebas adecuada, sigue sus patrones existentes y señala la decisión en el handoff.
+
+
+## Convencion de nombres
+- Siempre que usemos interfaces agrega el prefijo I, ejemplo IUser
+- Siempre que usemos repositorios agregemos el sufijo Repository, ejemplo UserRepository
+- Siempre que se usen agregados agrega el sufijo Agregator, ejemplo UserAgregator
+- Siempre que se usen primitivos agrega el sufijo Primitives, ejemplo UserPrimitives
+- Evita usar objetos sin interfaces o clases como atributos de otras clases, ejemplo:
+  IUser {
+    name: string,
+    age: number
+    academy: {
+        name: string,
+        localtion: string
+    }
+  }
+  en este caso lo correcto sería:
+  IAcademy {
+    name: string,
+    location: string
+  }
+  IUser {
+    name: string,
+    age: number
+    academy: IAcademy
+  }
+- usar siempre la convencion estandar de camelCase, SnakeCase o similar según el lenguaje o framework usado en el proyecto
