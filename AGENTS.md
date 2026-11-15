@@ -41,3 +41,33 @@ REGLA MAS IMPORTANTE: TIENES QUE TENER MUCHO CUIDADO AL USAR LA VARIABLE $HOME E
     academy: IAcademy
   }
 - usar siempre la convencion estandar de camelCase, SnakeCase o similar según el lenguaje o framework usado en el proyecto
+
+## Convencion de estructura de directorios
+- Siempre que usemos DDD debemos agregar Shared y los Bounded Contexts correspondientes, las carpetas deben tener como ejemplo la siguiente estructura:
+  - Users
+    - Application
+    - Domain
+    - Infraestructure
+  - Orders
+    - Application
+    - Domain
+    - Infraestructure
+  - Shared
+    - Application
+    - Domain
+    - Infraestructure
+  Si cada Bounded Context tiene mas Bounded Context internos debe respetar una estructura como la siguiente, teniendo en cuenta que el Shared es del propio Bounded Context Users y es independiente al Shared general de la aplicacion
+    - Users
+      - Auth
+        - Application
+        - Domain
+        - Infraestructure
+     - Profiles
+        - Application
+        - Domain
+        - Infraestructure
+     - Shared
+        - Application
+        - Domain
+        - Infraestructure
+- Los directorios de los test deben mantener la misma estructura y ubicacion de los archivos dentro de un directorio principal test, cada archivo de test debe estar ubicado en el mismo nivel de directorio que le corresponde en al app
